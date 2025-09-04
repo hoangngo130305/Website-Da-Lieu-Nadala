@@ -1,0 +1,351 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+:root {
+  --font-size: 16px;
+  --font-family-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --background: #ffffff;
+  --foreground: oklch(0.145 0 0);
+  --card: #ffffff;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #20B2AA;
+  --primary-foreground: #ffffff;
+  --secondary: #E0FFFE;
+  --secondary-foreground: #0D9488;
+  --muted: #F0FDFA;
+  --muted-foreground: #6B7280;
+  --accent: #CCFBF1;
+  --accent-foreground: #134E4A;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(32, 178, 170, 0.2);
+  --input: transparent;
+  --input-background: #F0FDFA;
+  --switch-background: #cbced4;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --ring: #20B2AA;
+  --chart-1: #20B2AA;
+  --chart-2: #40E0D0;
+  --chart-3: #00CED1;
+  --chart-4: #48D1CC;
+  --chart-5: #7FFFD4;
+  --radius: 0.625rem;
+  --sidebar: #F0FDFA;
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #20B2AA;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #CCFBF1;
+  --sidebar-accent-foreground: #134E4A;
+  --sidebar-border: rgba(32, 178, 170, 0.2);
+  --sidebar-ring: #20B2AA;
+}
+
+.dark {
+  --background: #0F1419;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  --primary: #40E0D0;
+  --primary-foreground: #0F1419;
+  --secondary: #1E3A32;
+  --secondary-foreground: #40E0D0;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #1E3A32;
+  --accent-foreground: #40E0D0;
+  --destructive: #DC2626;
+  --destructive-foreground: #F8FAFC;
+  --border: rgba(64, 224, 208, 0.2);
+  --input: #1E293B;
+  --ring: #40E0D0;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --chart-1: #40E0D0;
+  --chart-2: #20B2AA;
+  --chart-3: #00CED1;
+  --chart-4: #48D1CC;
+  --chart-5: #7FFFD4;
+  --sidebar: #1E293B;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #40E0D0;
+  --sidebar-primary-foreground: #0F1419;
+  --sidebar-accent: #1E3A32;
+  --sidebar-accent-foreground: #40E0D0;
+  --sidebar-border: rgba(64, 224, 208, 0.2);
+  --sidebar-ring: #40E0D0;
+}
+
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-family-body);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variation-settings: normal;
+  }
+}
+
+/**
+ * Enhanced typography system with professional font hierarchy
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-family: var(--font-family-heading);
+      font-size: 2.5rem;
+      font-weight: var(--font-weight-bold);
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+    }
+
+    h2 {
+      font-family: var(--font-family-heading);
+      font-size: 2rem;
+      font-weight: var(--font-weight-semibold);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    h3 {
+      font-family: var(--font-family-heading);
+      font-size: 1.5rem;
+      font-weight: var(--font-weight-semibold);
+      line-height: 1.4;
+      letter-spacing: -0.015em;
+    }
+
+    h4 {
+      font-family: var(--font-family-heading);
+      font-size: 1.25rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    h5 {
+      font-family: var(--font-family-heading);
+      font-size: 1.125rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h6 {
+      font-family: var(--font-family-heading);
+      font-size: 1rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-family: var(--font-family-body);
+      font-size: 1rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.7;
+      color: rgb(55 65 81);
+    }
+
+    .lead {
+      font-family: var(--font-family-body);
+      font-size: 1.125rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.7;
+      color: rgb(75 85 99);
+    }
+
+    .small {
+      font-family: var(--font-family-body);
+      font-size: 0.875rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.6;
+      color: rgb(107 114 128);
+    }
+
+    label {
+      font-family: var(--font-family-body);
+      font-size: 0.875rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+    }
+
+    button {
+      font-family: var(--font-family-body);
+      font-size: 0.875rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+    }
+
+    input, textarea, select {
+      font-family: var(--font-family-body);
+      font-size: 0.875rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    /* Special typography classes */
+    .display-1 {
+      font-family: var(--font-family-heading);
+      font-size: 4rem;
+      font-weight: var(--font-weight-extrabold);
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .display-2 {
+      font-family: var(--font-family-heading);
+      font-size: 3.5rem;
+      font-weight: var(--font-weight-bold);
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+    }
+
+    .subtitle-1 {
+      font-family: var(--font-family-body);
+      font-size: 1.125rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.6;
+      letter-spacing: 0.005em;
+    }
+
+    .subtitle-2 {
+      font-family: var(--font-family-body);
+      font-size: 1rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+    }
+
+    .body-1 {
+      font-family: var(--font-family-body);
+      font-size: 1rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.7;
+    }
+
+    .body-2 {
+      font-family: var(--font-family-body);
+      font-size: 0.875rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.6;
+    }
+
+    .caption {
+      font-family: var(--font-family-body);
+      font-size: 0.75rem;
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+      color: rgb(107 114 128);
+    }
+
+    .overline {
+      font-family: var(--font-family-body);
+      font-size: 0.75rem;
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+  font-family: var(--font-family-body);
+}
+
+/* Smooth font rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Better text selection */
+::selection {
+  background-color: rgba(32, 178, 170, 0.2);
+  color: inherit;
+}
+
+/* Focus styles for better accessibility */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-10px); 
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
