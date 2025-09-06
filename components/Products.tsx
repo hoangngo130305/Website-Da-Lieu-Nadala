@@ -61,101 +61,13 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshToken, setRefreshToken] = useState<string | null>(
+  const [refreshToken] = useState<string | null>(
     typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null
   );
-  const [localToken, setLocalToken] = useState<string | null>(token);
 
-  // Hàm kiểm tra token có hợp lệ không
-  const isTokenValid = (token: string): boolean => {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      if (typeof payload.exp !== "number") {
-        console.error("Invalid exp format:", payload.exp);
-        return false;
-      }
-      const expiry = payload.exp * 1000; // Chuyển giây thành mili-giây
-      const now = Date.now();
-      const isValid = now < expiry;
-      console.log("Token validity check:", { token, expiry, now, isValid });
-      return isValid;
-    } catch (err) {
-      console.error("Token không hợp lệ:", err);
-      return false;
-    }
-  };
-
-  // Hàm tự động đăng nhập
-  const autoLogin = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: "admin1",
-          password: "123321Hoang",
-        }),
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Đăng nhập tự động thất bại: ${errorText}`);
-      }
-      const data = await res.json();
-      const newAccessToken = data.access;
-      const newRefreshToken = data.refresh;
-      setLocalToken(newAccessToken);
-      setRefreshToken(newRefreshToken);
-      localStorage.setItem("access_token", newAccessToken);
-      localStorage.setItem("refresh_token", newRefreshToken);
-      console.log("Auto login successful:", newAccessToken);
-      return newAccessToken;
-    } catch (err: any) {
-      console.error("Error during auto login:", err.message);
-      setIsLoginOpen(true);
-      throw err;
-    }
-  };
-
-  // Hàm làm mới token
-  const refreshAccessToken = async () => {
-    if (!refreshToken) {
-      throw new Error("Không có refresh token. Vui lòng đăng nhập lại!");
-    }
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/token/refresh/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: refreshToken }),
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Làm mới token thất bại: ${errorText}`);
-      }
-      const data = await res.json();
-      const newAccessToken = data.access;
-      setLocalToken(newAccessToken);
-      localStorage.setItem("access_token", newAccessToken);
-      if (data.refresh) {
-        setRefreshToken(data.refresh);
-        localStorage.setItem("refresh_token", data.refresh);
-      }
-      console.log("Token refreshed successfully:", newAccessToken);
-      return newAccessToken;
-    } catch (err: any) {
-      console.error("Error refreshing token:", err.message);
-      setLocalToken(null);
-      setRefreshToken(null);
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      setIsLoginOpen(true);
-      throw err;
-    }
-  };
-
-  // Hàm lấy danh sách sản phẩm
   const fetchProducts = async (accessToken: string) => {
     setIsLoading(true);
-    console.log("Fetching products with token:", accessToken);
+    console.log("Fetching products with token");
     try {
       const res = await fetch("http://127.0.0.1:8000/api/products/", {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -164,8 +76,8 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
         const errorData = await res.json();
         console.log("Error response:", errorData);
         if (res.status === 401 && refreshToken) {
-          const newToken = await refreshAccessToken();
-          return fetchProducts(newToken);
+          await refreshAccessToken();
+          return;
         }
         throw new Error(errorData.detail || "Không thể lấy danh sách sản phẩm");
       }
@@ -188,7 +100,6 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
       }));
       setProducts(mapped);
     } catch (err: any) {
-      console.error("Error fetching products:", err.message);
       alert("Lỗi khi lấy sản phẩm: " + err.message);
       setProducts([]);
       setIsLoginOpen(true);
@@ -197,48 +108,33 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
     }
   };
 
-  // Hàm kiểm tra và lấy dữ liệu
-  const fetchData = async () => {
-    if (!localToken) {
-      try {
-        const newToken = await autoLogin();
-        await fetchProducts(newToken);
-      } catch (err) {
-        console.error("Auto login failed:", err);
-        return;
-      }
-    } else if (isTokenValid(localToken)) {
-      await fetchProducts(localToken);
-    } else {
-      try {
-        const newToken = await refreshAccessToken();
-        await fetchProducts(newToken);
-      } catch (err) {
-        console.error("Refresh token failed:", err);
-        try {
-          const newToken = await autoLogin();
-          await fetchProducts(newToken);
-        } catch (autoLoginErr) {
-          console.error("Auto login after refresh failed:", autoLoginErr);
-        }
-      }
+  const refreshAccessToken = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/token/refresh/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+      if (!res.ok) throw new Error("Làm mới token thất bại");
+      const data = await res.json();
+      localStorage.setItem("access_token", data.access);
+      alert(
+        "Token đã được làm mới! - " +
+          new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+      );
+      await fetchProducts(data.access);
+    } catch (err: any) {
+      alert("Lỗi khi làm mới token: " + err.message);
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      setIsLoginOpen(true);
     }
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const storedToken = localStorage.getItem("access_token");
-        const storedRefreshToken = localStorage.getItem("refresh_token");
-        console.log("Current token:", storedToken);
-        console.log("Current refresh token:", storedRefreshToken);
-        setLocalToken(storedToken || token);
-        setRefreshToken(storedRefreshToken);
-        fetchData();
-      } catch (err) {
-        console.error("Error accessing localStorage:", err);
-        alert("Không thể truy cập localStorage. Vui lòng thử lại!");
-      }
+    console.log("Products useEffect, token:", !!token);
+    if (token) {
+      fetchProducts(token);
     }
   }, [token]);
 
