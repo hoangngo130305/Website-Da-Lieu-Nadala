@@ -1,8 +1,5 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { login } from "../src/lib/api";
 
@@ -49,50 +46,13 @@ export function LoginModal({
     }
   };
 
-  // Tự động đăng nhập khi modal mở
+  // Tự động đăng nhập khi modal mở và có username, password
   useEffect(() => {
     if (isOpen && username && password && !isLoading) {
       handleLogin();
     }
   }, [isOpen, username, password, isLoading]);
 
-  return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        console.log("Trạng thái mở dialog thay đổi:", open);
-        onOpenChange(open);
-      }}
-    >
-      <DialogContent aria-describedby="login-description">
-        <DialogHeader>
-          <DialogTitle>Đăng nhập</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4" id="login-description">
-          <Input
-            autoFocus
-            placeholder="Tên đăng nhập"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") e.preventDefault();
-            }}
-          />
-          <Input
-            type="password"
-            placeholder="Mật khẩu"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") e.preventDefault();
-            }}
-          />
-          {loginError && <p className="text-red-500">{loginError}</p>}
-          <Button onClick={handleLogin} disabled={isLoading}>
-            {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+  // Không render giao diện
+  return null;
 }
