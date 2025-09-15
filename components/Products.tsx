@@ -61,13 +61,10 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshToken] = useState<string | null>(
-    typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null
-  );
 
   const fetchProducts = async (accessToken: string) => {
     setIsLoading(true);
-    console.log("Fetching products with token");
+    console.log("Fetching products with token:", accessToken);
     try {
       const res = await fetch("http://127.0.0.1:8000/api/products/", {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -75,9 +72,9 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
       if (!res.ok) {
         const errorData = await res.json();
         console.log("Error response:", errorData);
-        if (res.status === 401 && refreshToken) {
-          await refreshAccessToken();
-          return;
+        if (res.status === 401) {
+          setIsLoginOpen(true);
+          throw new Error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
         }
         throw new Error(errorData.detail || "Không thể lấy danh sách sản phẩm");
       }
@@ -100,6 +97,7 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
       }));
       setProducts(mapped);
     } catch (err: any) {
+      console.error("Error fetching products:", err.message);
       alert("Lỗi khi lấy sản phẩm: " + err.message);
       setProducts([]);
       setIsLoginOpen(true);
@@ -108,35 +106,14 @@ export function Products({ onNavigate, token, setIsLoginOpen }: ProductsProps) {
     }
   };
 
-  const refreshAccessToken = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/token/refresh/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: refreshToken }),
-      });
-      if (!res.ok) throw new Error("Làm mới token thất bại");
-      const data = await res.json();
-      localStorage.setItem("access_token", data.access);
-      alert(
-        "Token đã được làm mới! - " +
-          new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
-      );
-      await fetchProducts(data.access);
-    } catch (err: any) {
-      alert("Lỗi khi làm mới token: " + err.message);
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      setIsLoginOpen(true);
-    }
-  };
-
   useEffect(() => {
     console.log("Products useEffect, token:", !!token);
     if (token) {
       fetchProducts(token);
+    } else {
+      setIsLoginOpen(true);
     }
-  }, [token]);
+  }, [token, setIsLoginOpen]);
 
   const categories = [
     { id: "all", name: t("products.title") },

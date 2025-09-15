@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Card,
@@ -35,6 +37,8 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface HomeProps {
   onNavigate: (section: string) => void;
+  setIsLoginOpen: (open: boolean) => void;
+  onLoginSuccess: (access: string, refresh: string) => void;
 }
 
 interface QuickBookingForm {
@@ -95,7 +99,11 @@ interface Review {
   rating: number;
 }
 
-export function Home({ onNavigate }: HomeProps) {
+export function Home({
+  onNavigate,
+  setIsLoginOpen,
+  onLoginSuccess,
+}: HomeProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [featuredServices, setFeaturedServices] = useState<Service[]>([]);
@@ -112,7 +120,7 @@ export function Home({ onNavigate }: HomeProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Hàm kiểm tra token có hợp lệ không
+  // Hàm kiểm tra token có hợp lệ không (từ Products.tsx)
   const isTokenValid = (token: string): boolean => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -131,7 +139,7 @@ export function Home({ onNavigate }: HomeProps) {
     }
   };
 
-  // Hàm làm mới token
+  // Hàm làm mới token (từ Products.tsx)
   const refreshAccessToken = async (): Promise<string> => {
     if (!refreshToken) {
       throw new Error("Không có refresh token. Vui lòng đăng nhập lại!");
@@ -155,20 +163,26 @@ export function Home({ onNavigate }: HomeProps) {
         setRefreshToken(data.refresh);
         localStorage.setItem("refresh_token", data.refresh);
       }
+      onLoginSuccess(newAccessToken, data.refresh || refreshToken);
+      alert(
+        "Token đã được làm mới! - " +
+          new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+      );
       console.log("Token refreshed successfully:", newAccessToken);
       return newAccessToken;
     } catch (err: any) {
       console.error("Error refreshing token:", err.message);
-      alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+      alert("Lỗi khi làm mới token: " + err.message);
       setToken(null);
       setRefreshToken(null);
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
+      setIsLoginOpen(true);
       throw err;
     }
   };
 
-  // Hàm fetch dữ liệu với retry khi token hết hạn
+  // Hàm fetch dữ liệu với retry khi token hết hạn (từ Products.tsx)
   const fetchData = async (
     accessToken: string,
     endpoint: string,
@@ -201,6 +215,7 @@ export function Home({ onNavigate }: HomeProps) {
     } catch (err: any) {
       console.error(`Error fetching ${endpoint.split("/")[2]}:`, err.message);
       setError(`Không thể tải dữ liệu: ${err.message}`);
+      setIsLoginOpen(true);
     } finally {
       setIsLoading(false);
       console.log(`Fetch completed for ${endpoint}`);
@@ -224,24 +239,19 @@ export function Home({ onNavigate }: HomeProps) {
 
   // Hàm fetch tất cả dữ liệu
   const fetchAllData = async () => {
-    if (!token) {
+    if (!token || !isTokenValid(token)) {
       setError("Vui lòng đăng nhập để tải dữ liệu!");
-      onNavigate("login");
+      setIsLoginOpen(true);
       return;
     }
-    if (isTokenValid(token)) {
-      console.log("Fetching data with valid token:", token);
-      await Promise.all([
-        fetchFeaturedServices(),
-        fetchFeaturedProducts(),
-        fetchCustomerReviews(),
-        fetchDoctors(),
-        fetchTimeSlots(),
-      ]).catch((err) => setError(`Lỗi khi tải dữ liệu: ${err.message}`));
-    } else {
-      setError("Token đã hết hạn. Vui lòng đăng nhập lại!");
-      onNavigate("login");
-    }
+    console.log("Fetching data with valid token:", token);
+    await Promise.all([
+      fetchFeaturedServices(),
+      fetchFeaturedProducts(),
+      fetchCustomerReviews(),
+      fetchDoctors(),
+      fetchTimeSlots(),
+    ]).catch((err) => setError(`Lỗi khi tải dữ liệu: ${err.message}`));
   };
 
   useEffect(() => {
@@ -253,15 +263,21 @@ export function Home({ onNavigate }: HomeProps) {
         console.log("Current refresh token:", storedRefreshToken);
         setToken(storedToken);
         setRefreshToken(storedRefreshToken);
-        fetchAllData();
+        if (!storedToken || !isTokenValid(storedToken!)) {
+          setIsLoginOpen(true);
+        } else {
+          fetchAllData();
+        }
       } catch (err) {
         console.error("Error accessing localStorage:", err);
         setError("Không thể truy cập localStorage. Vui lòng thử lại!");
+        setIsLoginOpen(true);
       }
     } else {
       setError("localStorage không khả dụng trong môi trường này!");
+      setIsLoginOpen(true);
     }
-  }, []);
+  }, [token, setIsLoginOpen, onLoginSuccess]);
 
   const HeroBanner = () => (
     <section className="relative bg-gradient-to-br from-secondary via-white to-accent py-20 overflow-hidden">
@@ -715,7 +731,7 @@ export function Home({ onNavigate }: HomeProps) {
       e.preventDefault();
       if (!token) {
         setError("Vui lòng đăng nhập để đặt lịch!");
-        onNavigate("login");
+        setIsLoginOpen(true);
         return;
       }
       setIsLoading(true);
@@ -806,6 +822,7 @@ export function Home({ onNavigate }: HomeProps) {
       } catch (err: any) {
         console.error("Error submitting booking:", err.message);
         setError(`Đặt lịch thất bại: ${err.message}`);
+        setIsLoginOpen(true);
       } finally {
         setIsLoading(false);
       }

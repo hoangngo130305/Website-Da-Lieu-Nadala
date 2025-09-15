@@ -26,35 +26,37 @@ export default function App() {
   const [pendingSection, setPendingSection] = useState<string | null>(null);
 
   const handleNavigate = (section: string) => {
+    const normalizedSection = section.toLowerCase();
     console.log("handleNavigate called:", {
-      section,
+      section: normalizedSection,
       tokenExists: !!token,
       isLoginOpen,
+      localStorageToken: localStorage.getItem("access_token"),
     });
-    // Kiểm tra token cho Products và Booking
-    if (["products", "booking"].includes(section.toLowerCase()) && !token) {
+    if (["products", "booking"].includes(normalizedSection) && !token) {
       console.log(
         "No token, opening login modal, setting pendingSection:",
-        section
+        normalizedSection
       );
-      setPendingSection(section);
+      setPendingSection(normalizedSection);
       setIsLoginOpen(true);
     } else {
       console.log(
         "Token exists or section not restricted, navigating to:",
-        section
+        normalizedSection
       );
-      setActiveSection(section);
+      setActiveSection(normalizedSection);
       setPendingSection(null);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handleLoginSuccess = (access: string, refresh: string) => {
-    console.log(
-      "Login success, setting tokens and navigating to pendingSection:",
-      pendingSection
-    );
+    console.log("Login success, setting tokens:", {
+      access,
+      refresh,
+      pendingSection,
+    });
     setToken(access);
     setRefreshToken(refresh);
     localStorage.setItem("access_token", access);
@@ -137,7 +139,13 @@ export default function App() {
     console.log("Rendering section:", activeSection);
     switch (activeSection) {
       case "home":
-        return <Home onNavigate={handleNavigate} />;
+        return (
+          <Home
+            onNavigate={handleNavigate}
+            setIsLoginOpen={setIsLoginOpen} // Thêm prop này
+            onLoginSuccess={handleLoginSuccess} // Thêm prop này
+          />
+        );
       case "about":
         return <About />;
       case "services":
@@ -157,7 +165,13 @@ export default function App() {
       case "contact":
         return <Contact />;
       default:
-        return <Home onNavigate={handleNavigate} />;
+        return (
+          <Home
+            onNavigate={handleNavigate}
+            setIsLoginOpen={setIsLoginOpen}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        );
     }
   };
 
@@ -170,10 +184,7 @@ export default function App() {
         <Header activeSection={activeSection} onNavigate={handleNavigate} />
         <LoginModal
           isOpen={isLoginOpen}
-          onOpenChange={(open) => {
-            console.log("LoginModal open state changed:", open);
-            setIsLoginOpen(open);
-          }}
+          onOpenChange={setIsLoginOpen}
           onLoginSuccess={handleLoginSuccess}
         />
         <main>{renderSection()}</main>

@@ -139,7 +139,13 @@ export default function App() {
     console.log("Rendering section:", activeSection);
     switch (activeSection) {
       case "home":
-        return <Home onNavigate={handleNavigate} />;
+        return (
+          <Home
+            onNavigate={handleNavigate}
+            setIsLoginOpen={setIsLoginOpen} // Thêm prop này
+            onLoginSuccess={handleLoginSuccess} // Thêm prop này
+          />
+        );
       case "about":
         return <About />;
       case "services":
@@ -159,7 +165,13 @@ export default function App() {
       case "contact":
         return <Contact />;
       default:
-        return <Home onNavigate={handleNavigate} />;
+        return (
+          <Home
+            onNavigate={handleNavigate}
+            setIsLoginOpen={setIsLoginOpen}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        );
     }
   };
 
