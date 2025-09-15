@@ -33,14 +33,9 @@ export function LoginModal({
       setPassword("123321Hoang"); // Đặt lại giá trị mặc định
       setLoginError(null);
       onOpenChange(false);
-      alert(
-        "Đăng nhập thành công! - " +
-          new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
-      );
     } catch (err: any) {
       console.error("Lỗi đăng nhập:", err.message);
       setLoginError(err.message);
-      alert("Lỗi: " + err.message);
     } finally {
       setIsLoading(false);
     }
