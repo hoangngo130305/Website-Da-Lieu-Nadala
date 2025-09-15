@@ -156,7 +156,8 @@ REST_FRAMEWORK = {
     # (các setting DRF khác của bạn giữ nguyên)
 }
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:3000",          # Cho local development
+    "http://14.224.210.210:8081",     # Cho production trên server
 ]
 # (tùy chọn) cấu hình Swagger / OpenAPI
 SPECTACULAR_SETTINGS = {
